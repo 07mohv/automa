@@ -1,0 +1,206 @@
+{
+  "extVersion": "1.30.00",
+  "name": "Click a link and recover if it fails",
+  "icon": "riGlobalLine",
+  "version": "1.30.00",
+  "table": [],
+  "settings": {
+    "publicId": "",
+    "aipowerToken": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column"
+  },
+  "globalData": "{}",
+  "description": "Open example.com and click the More information link. After two retries, record a failure in the variable \"result\" instead of stopping.",
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "label": "trigger",
+        "type": "BlockBasic",
+        "position": {
+          "x": 96,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "type": "manual",
+          "interval": 60,
+          "delay": 5,
+          "date": "",
+          "time": "00:00",
+          "url": "",
+          "shortcut": "",
+          "activeInInput": false,
+          "isUrlRegex": false,
+          "days": [],
+          "contextMenuName": "",
+          "contextTypes": [],
+          "parameters": [],
+          "preferParamsInTab": false,
+          "observeElement": {
+            "selector": "",
+            "baseSelector": "",
+            "matchPattern": "",
+            "targetOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            },
+            "baseElOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            }
+          }
+        }
+      },
+      {
+        "id": "open",
+        "label": "new-tab",
+        "type": "BlockBasic",
+        "position": {
+          "x": 376,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "url": "https://example.com",
+          "userAgent": "",
+          "active": true,
+          "tabZoom": 1,
+          "inGroup": false,
+          "waitTabLoaded": true,
+          "updatePrevTab": false,
+          "customUserAgent": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "click",
+        "label": "event-click",
+        "type": "BlockBasic",
+        "position": {
+          "x": 656,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Click More information",
+          "findBy": "cssSelector",
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "selector": "a[href=\"https://www.iana.org/domains/example\"]",
+          "markEl": false,
+          "multiple": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "fallback"
+          }
+        }
+      },
+      {
+        "id": "ok",
+        "label": "insert-data",
+        "type": "BlockBasic",
+        "position": {
+          "x": 936,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "The click ran",
+          "dataList": [
+            {
+              "type": "variable",
+              "name": "result",
+              "value": "clicked"
+            }
+          ]
+        }
+      },
+      {
+        "id": "failed",
+        "label": "insert-data",
+        "type": "BlockBasic",
+        "position": {
+          "x": 1216,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "The link was missing after retries",
+          "dataList": [
+            {
+              "type": "variable",
+              "name": "result",
+              "value": "click failed"
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "trigger",
+        "target": "open",
+        "sourceHandle": "trigger-output-1",
+        "targetHandle": "open-input-1",
+        "class": "source-trigger-output-1 target-open-input-1"
+      },
+      {
+        "id": "edge-2",
+        "source": "open",
+        "target": "click",
+        "sourceHandle": "open-output-1",
+        "targetHandle": "click-input-1",
+        "class": "source-open-output-1 target-click-input-1"
+      },
+      {
+        "id": "edge-3",
+        "source": "click",
+        "target": "ok",
+        "sourceHandle": "click-output-1",
+        "targetHandle": "ok-input-1",
+        "class": "source-click-output-1 target-ok-input-1"
+      },
+      {
+        "id": "edge-4",
+        "source": "click",
+        "target": "failed",
+        "sourceHandle": "click-output-fallback",
+        "targetHandle": "failed-input-1",
+        "class": "source-click-output-fallback target-failed-input-1"
+      }
+    ],
+    "zoom": 1,
+    "x": 0,
+    "y": 0
+  }
+}

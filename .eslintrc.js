@@ -11,6 +11,23 @@ module.exports = {
     webextensions: true,
   },
   ignorePatterns: ['src/lib/google-*'],
+  overrides: [
+    {
+      files: ['agent/**/*.js'],
+      env: {
+        node: true,
+        browser: false,
+      },
+      rules: {
+        'no-console': 'off',
+        'import/no-unresolved': 'off',
+        'no-use-before-define': [
+          'error',
+          { functions: false, classes: true, variables: true },
+        ],
+      },
+    },
+  ],
   // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
   // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
   extends: [

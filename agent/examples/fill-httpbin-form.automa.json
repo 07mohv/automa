@@ -1,0 +1,197 @@
+{
+  "extVersion": "1.30.00",
+  "name": "Fill the httpbin form",
+  "icon": "riGlobalLine",
+  "version": "1.30.00",
+  "table": [],
+  "settings": {
+    "publicId": "",
+    "aipowerToken": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column"
+  },
+  "globalData": "{}",
+  "description": "Open the httpbin form, wait for the name field, type a name, and click submit.",
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "label": "trigger",
+        "type": "BlockBasic",
+        "position": {
+          "x": 96,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "type": "manual",
+          "interval": 60,
+          "delay": 5,
+          "date": "",
+          "time": "00:00",
+          "url": "",
+          "shortcut": "",
+          "activeInInput": false,
+          "isUrlRegex": false,
+          "days": [],
+          "contextMenuName": "",
+          "contextTypes": [],
+          "parameters": [],
+          "preferParamsInTab": false,
+          "observeElement": {
+            "selector": "",
+            "baseSelector": "",
+            "matchPattern": "",
+            "targetOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            },
+            "baseElOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            }
+          }
+        }
+      },
+      {
+        "id": "open",
+        "label": "new-tab",
+        "type": "BlockBasic",
+        "position": {
+          "x": 376,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Open the sample form",
+          "url": "https://httpbin.org/forms/post",
+          "userAgent": "",
+          "active": true,
+          "tabZoom": 1,
+          "inGroup": false,
+          "waitTabLoaded": true,
+          "updatePrevTab": false,
+          "customUserAgent": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "name",
+        "label": "forms",
+        "type": "BlockBasic",
+        "position": {
+          "x": 656,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Fill the customer name",
+          "findBy": "cssSelector",
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "selector": "input[name=\"custname\"]",
+          "markEl": false,
+          "multiple": false,
+          "selected": true,
+          "clearValue": true,
+          "getValue": false,
+          "saveData": false,
+          "dataColumn": "",
+          "selectOptionBy": "value",
+          "optionPosition": "1",
+          "assignVariable": false,
+          "variableName": "",
+          "type": "text-field",
+          "value": "Ada Lovelace",
+          "delay": 0,
+          "events": [],
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "submit",
+        "label": "event-click",
+        "type": "BlockBasic",
+        "position": {
+          "x": 936,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Submit the form",
+          "findBy": "cssSelector",
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "selector": "button[type=\"submit\"]",
+          "markEl": false,
+          "multiple": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "trigger",
+        "target": "open",
+        "sourceHandle": "trigger-output-1",
+        "targetHandle": "open-input-1",
+        "class": "source-trigger-output-1 target-open-input-1"
+      },
+      {
+        "id": "edge-2",
+        "source": "open",
+        "target": "name",
+        "sourceHandle": "open-output-1",
+        "targetHandle": "name-input-1",
+        "class": "source-open-output-1 target-name-input-1"
+      },
+      {
+        "id": "edge-3",
+        "source": "name",
+        "target": "submit",
+        "sourceHandle": "name-output-1",
+        "targetHandle": "submit-input-1",
+        "class": "source-name-output-1 target-submit-input-1"
+      }
+    ],
+    "zoom": 1,
+    "x": 0,
+    "y": 0
+  }
+}

@@ -39,6 +39,19 @@ Browse the Automa marketplace where you can share and download workflows with ot
 Automa Chrome Extension Builder (Automa CEB for short) allows you to generate a standalone chrome extension based on Automa workflows. [Go to the documentation &#187;](https://docs.extension.automa.site/extension-builder)
 
 
+## AI agents
+
+An agent can build a workflow that runs, without the visual editor. Start at [AGENTS.md](./AGENTS.md) (the discover → build → validate → import → run → logs → fix loop, plus which blocks to use) or [llms.txt](./llms.txt). Validate with `pnpm agent:validate <file>`. Import and run go through MCP or `POST /automa/v1/rpc` on `127.0.0.1` after Settings → Agent bridge is enabled.
+
+```bash
+pnpm agent:schema     # refresh the JSON Schema and block catalog
+pnpm agent:validate agent/examples/read-example-heading.automa.json
+pnpm test
+pnpm agent:mcp        # local MCP server and extension bridge
+```
+
+The extension bridge is off until you enable it in Settings → Agent bridge.
+
 ## Project setup
 Before running the `yarn dev` or `yarn build` script, you need to create the `getPassKey.js` file in the `src/utils` directory.  Inside the file write
 

@@ -16,6 +16,7 @@ import { automaRefDataStr } from '@/workflowEngine/helper';
 import automa from '@business';
 import browser from 'webextension-polyfill';
 import { registerWorkflowTrigger } from '../utils/workflowTrigger';
+import initAgentBridge from './agentBridge';
 import BackgroundEventsListeners from './BackgroundEventsListeners';
 import BackgroundOffscreen from './BackgroundOffscreen';
 import BackgroundUtils from './BackgroundUtils';
@@ -1098,3 +1099,4 @@ message.on('downloads:watch-changed', async ({ downloadId, onComplete }) => {
 automa('background', message);
 
 browser.runtime.onMessage.addListener(message.listener);
+initAgentBridge();

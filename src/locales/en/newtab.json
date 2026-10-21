@@ -148,8 +148,21 @@
       "profile": "Profile",
       "backup": "Backup Workflows",
       "editor": "Editor",
+      "agent": "Agent bridge",
       "shortcuts": "Shortcuts",
       "about": "About"
+    },
+    "agent": {
+      "intro": "Let a local AI agent list blocks, validate a workflow, import it, and run it. The bridge stays off until you enable it, and it only connects to 127.0.0.1.",
+      "enabled": "Enable agent bridge",
+      "enabledDescription": "Automa polls a local server and can import or run workflows that present this token. The same server speaks MCP and HTTP.",
+      "port": "Port",
+      "token": "Token",
+      "generate": "Generate token",
+      "copy": "Copy token",
+      "copied": "Token copied",
+      "command": "Start the local server with the same token and port. MCP clients use this process. Other agents POST /automa/v1/rpc on this port.",
+      "warning": "Anyone who can reach this token on your machine can store and run workflows. Do not share it."
     },
     "backupWorkflows": {
       "title": "Local Backup",
