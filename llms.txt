@@ -2,7 +2,7 @@
 
 > Browser extension that automates the browser by connecting blocks into workflows. Point any agent at this repository and it can build a workflow that runs.
 
-Read [AGENTS.md](AGENTS.md) first. It is the whole loop: discover blocks, build, validate, fix every warning, import, run, read logs, fix again. It also says which blocks to use for scraping, forms, loops, waits, retries, variables, and triggers, and which patterns to avoid.
+Read [AGENTS.md](AGENTS.md) first. It is the whole loop: discover blocks, build, validate, fix every warning, import, run, read logs, fix again. If you can drive a browser, follow the section "From a description to a working workflow": `open_tab`, `page_snapshot`, `test_selector`, `preview_block`, then assemble. `judge_selector` scores a selector with no extension. The guide also says which blocks to use for scraping, forms, loops, waits, retries, variables, and triggers.
 
 ## Files
 
@@ -12,12 +12,12 @@ Read [AGENTS.md](AGENTS.md) first. It is the whole loop: discover blocks, build,
 
 ## Interfaces (same tool names)
 
-- CLI, no server: `node agent/cli.js blocks`, `block <id>`, `validate <file>`, `create --spec <file>`
+- CLI, no server: `node agent/cli.js blocks`, `block <id>`, `validate <file>`, `create --spec <file>`, `selector '<css>'`
 - HTTP, any language: `POST http://127.0.0.1:17321/automa/v1/rpc` with header `x-automa-token` and body `{"method","params"}`. `GET /automa/v1/health` needs no token.
 - CLI against that server: `node agent/cli.js rpc <method> --file <params.json>`
 - MCP: `pnpm agent:mcp` (`node agent/mcp-server.js`), stdio, same tools
 
-Local tools (`list_blocks`, `get_block_schema`, `create_workflow`, `validate_workflow`) work before the extension is connected. Import and run need Settings → Agent bridge enabled with the same token. The bridge listens on `127.0.0.1` only and is off by default.
+Local tools (`list_blocks`, `get_block_schema`, `create_workflow`, `validate_workflow`, `judge_selector`) work before the extension is connected. Page tools (`list_tabs`, `open_tab`, `page_snapshot`, `test_selector`, `evaluate_in_tab`, `capture_screenshot`, `preview_block`, `preview_workflow`) and import/run need Settings → Agent bridge enabled with the same token. The bridge listens on `127.0.0.1` only and is off by default.
 
 Clear validator warnings before importing a workflow you generated. `ok: true` only means the graph can be stored. Warnings tell you about fixed delays, missing waits, fragile selectors, loops without a breakpoint, and missing retries, and each warning includes a `fix` string.
 
@@ -29,6 +29,8 @@ Clear validator warnings before importing a workflow you generated. `ok: true` o
 - [Scrape paragraphs into a table](agent/examples/scrape-example-paragraphs.automa.json)
 - [Loop numbers into a table](agent/examples/loop-numbers-to-table.automa.json)
 - [Click, retry, then fall back](agent/examples/click-with-fallback.automa.json)
+- [Computer use: read a heading](agent/examples/computer-use-read-heading.md) from a plain-language request, through a page snapshot, to the workflow
+- [Computer use: fill a form](agent/examples/computer-use-fill-form.md)
 
 ## Templating
 

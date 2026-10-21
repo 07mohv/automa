@@ -15,6 +15,12 @@ import shortcutListener from './services/shortcutListener';
 import showExecutedBlock from './showExecutedBlock';
 // import elementObserver from './elementObserver';
 import { elementSelectorInstance } from './utils';
+import {
+  evaluateIsolated,
+  snapshotPage,
+  summarizeValue,
+  testSelector,
+} from './agentInspectPage';
 
 const isMainFrame = window.self === window.top;
 
@@ -290,6 +296,35 @@ async function messageListener({ data, source }) {
         return Boolean(window.initPaletteParams);
       case 'content-script-exists':
         return true;
+      case 'agent:snapshot':
+        return snapshotPage(data.limit);
+      case 'agent:test-selector':
+        return testSelector(data);
+      case 'agent:evaluate':
+        return evaluateIsolated(data.code, data.timeoutMs);
+      case 'agent:preview-block':
+        try {
+          const result = await executeBlock({
+            id: 'agent-preview',
+            name: data.block,
+            label: data.block,
+            data: data.data || {},
+            executedBlockOnWeb: false,
+          });
+          return {
+            ok: true,
+            block: data.block,
+            result: summarizeValue(result),
+          };
+        } catch (error) {
+          return {
+            ok: false,
+            block: data.block,
+            error: error.message,
+            data: error.data || null,
+            fix: 'Call test_selector for this selector. If matchCount is 0, copy another candidate from page_snapshot. If this block does not run in the page, use preview_workflow.',
+          };
+        }
       case 'automa-element-selector': {
         return elementSelectorInstance();
       }

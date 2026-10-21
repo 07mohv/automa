@@ -36,6 +36,15 @@ Use whichever interface your runtime already has. The tool names and arguments m
 | `run_workflow` | yes | Run by `workflowId`. |
 | `get_run_logs` | yes | Running states, and finished logs with block history. |
 | `stop_workflow` | yes | Stop by `stateId` or `workflowId`. |
+| `judge_selector` | no | Score a selector: `stable`, `ok`, or `fragile`. |
+| `list_tabs` | yes | Tabs the extension can see. `inspectable` is false for internal pages. |
+| `open_tab` | yes | Open an http(s) URL and wait for it to load. |
+| `page_snapshot` | yes | Visible interactive elements, each with ranked selector candidates. |
+| `test_selector` | yes | Match count, visibility, and sample text. `highlight` outlines matches. |
+| `evaluate_in_tab` | yes | Run JavaScript in the tab and return the value. |
+| `capture_screenshot` | yes | JPEG of the visible area. Prefer `page_snapshot` for selectors. |
+| `preview_block` | yes | Run one block on the live page. Clicks and typing really happen. |
+| `preview_workflow` | yes | Run a whole workflow once, return the log, then delete the copy. |
 
 ### CLI (no server, local tools only)
 
@@ -45,6 +54,7 @@ node agent/cli.js block get-text
 node agent/cli.js validate agent/examples/read-example-heading.automa.json
 node agent/cli.js create --spec spec.json --out workflow.automa.json
 node agent/cli.js normalize legacy.automa.json --out workflow.automa.json
+node agent/cli.js selector 'input[name="custname"]'
 ```
 
 `validate` exits 1 when `ok` is false. It still prints warnings when `ok` is true. Read them.
@@ -66,7 +76,7 @@ curl -s http://127.0.0.1:17321/automa/v1/rpc \
   -d '{"method":"list_blocks","params":{"category":"interaction"}}'
 ```
 
-`list_blocks`, `get_block_schema`, `create_workflow`, and `validate_workflow` work even when the extension is disconnected. Import and run return an error that tells you to enable Settings → Agent bridge.
+`list_blocks`, `get_block_schema`, `create_workflow`, `validate_workflow`, and `judge_selector` work even when the extension is disconnected. Import, run, and the page tools return an error that tells you to enable Settings → Agent bridge.
 
 The same call from the CLI, against that server:
 
@@ -306,6 +316,69 @@ The validator emits a warning and a `fix` for each of these. Treat the `fix` as 
 
 `empty-required` is an **error**. A blank `new-tab` URL or a blank selector will not run. `invalid-handle`, `dangling-edge`, `duplicate-node-id`, and `missing-trigger` are structural errors. Import refuses those unless `force` is true.
 
+## From a description to a working workflow
+
+Use this when you can drive a browser (open pages, click, type, look at the screen) and the bridge is enabled. Your eyes tell you what the page is. The tools below tell you the selector Automa will actually use. Do not invent a selector from a screenshot when `page_snapshot` returned a candidate.
+
+The same calls work over MCP, `POST /automa/v1/rpc`, or `node agent/cli.js rpc <method> --file params.json`. `judge_selector` and `node agent/cli.js selector '<selector>'` work with no extension.
+
+1. **Read the request.** Name the site, the data to read or the action to take, and where the result should go (a variable, a table column, or the next page).
+2. **Open the page.** If you opened it yourself, `list_tabs` and use that `tabId`. Otherwise `open_tab` with the URL. Pass `tabId` on every later call.
+3. **Look, then snapshot.** `page_snapshot`. Each element has `text`, `role`, `type`, and `candidates` sorted by `score`. `verdict` is `stable`, `ok`, or `fragile`.
+4. **Test before you trust it.** `test_selector` for the candidate you intend to use. Accept it only when `matchCount` is 1 for a single target, or the list size you expect for `loop-elements`, `visibleCount` agrees, and `samples[0].text` is the element you saw. `highlight: true` outlines it so you can check with your eyes. A `fragile` verdict is not acceptable in the workflow.
+5. **Preview the step.** `preview_block` performs the block. `new-tab` opens the URL. `forms` types. `event-click` clicks. `get-text` returns the string. A null `result` means the block finished without a value; look at the page to confirm the field changed.
+6. **Assemble.** `create_workflow` with the selectors you tested, `waitTabLoaded`, `waitForSelector`, and `onError` retries from the guide above. `validate_workflow` until `errors` and `warnings` are empty. `judge_selector` is not a substitute for `test_selector`.
+7. **Run the whole thing.** `preview_workflow` once. Read `logs[0].history`. The message on a failed block names the selector or the error. Fix that step, `test_selector` again, then `import_workflow` and `run_workflow`. `preview_workflow` deletes its temporary copy unless you pass `keep: true` or it is still running.
+8. **Debug a saved run.** `get_run_logs`. A `running` entry means it has not finished. On a finished log, `history[].name` is the block and `history[].message` is the error (`element-not-found` means the selector missed; take a fresh snapshot, the page may have changed). `stop_workflow` abandons a stuck run.
+
+Two traces are written out so you can copy the shape of the calls:
+
+- [Read the example.com heading](agent/examples/computer-use-read-heading.md) ends at `agent/examples/read-example-heading.automa.json`
+- [Fill the httpbin form](agent/examples/computer-use-fill-form.md) ends at `agent/examples/fill-httpbin-form.automa.json`
+
+### Which selector to keep
+
+| Prefer | Example | When |
+| --- | --- | --- |
+| `data-testid`, `data-test`, `data-cy`, `data-qa` | `[data-testid="customer-name"]` | The site provides one. |
+| `name`, `aria-label`, `placeholder` | `input[name="custname"]` | Forms. |
+| `href` | `a[href="https://www.iana.org/domains/example"]` | The link target is stable and not a long query string. |
+| Hand-written `id` | `form#login` | The id is not generated. |
+| Tag | `h1` | A landmark, and `test_selector` reports `matchCount` 1. |
+| `:equal("Submit")` | `button:equal("Submit")` | The visible label is the action, and it does not change. Automa's selector engine supports `:equal` and `:contains`. |
+
+Do not select an element by the text you are trying to read. `h1:equal("Example Domain")` breaks when the heading changes, which is the value you wanted. Use `:equal` for buttons and links whose label is the action.
+
+Generated ids (`ember123`, `css-1ab2c`, `react-select`) and `:nth-child` chains are `fragile`. Drop them.
+
+`findBy` is `cssSelector` unless the candidate says `xpath`. Inside `loop-elements`, the body selector is `{{loopData@loopId}}`, which `test_selector` will not match outside the loop. Test the list selector (`p`, `li.product`) with `test_selector` and expect `matchCount` greater than 1.
+
+### When to use a JavaScript block
+
+Use `javascript-code` with `context: "website"` when:
+
+- the value is computed (a regex over the page, JSON inside a script tag)
+- the only selector is `fragile` and `test_selector` cannot make it unique
+- the node is inside an open shadow root (`page_snapshot` sets `shadowRoots: true`). The `>>` combinator reaches open shadow DOM (`host >> button`). A closed shadow root needs JavaScript.
+
+Prototype the DOM read with `evaluate_in_tab`. `code` is the body of an async function. `return` the JSON value you need. `world: "isolated"` sees the DOM and is not blocked by the page CSP. `world: "page"` sees the page's own JavaScript; the page may refuse it.
+
+In the workflow block, hand the value back with the helpers Automa injects:
+
+```javascript
+const heading = document.querySelector('h1')?.innerText || '';
+automaSetVariable('heading', heading);
+automaNextBlock(heading);
+```
+
+Preview that block with `preview_block`. The preview understands `automaNextBlock` and `automaSetVariable`. Do not read `document.cookie`, `localStorage`, or passwords unless the task asks for them. Do not use `context: "background"` unless you need an extension API; it is not previewed, because it can do more than touch the page.
+
+`preview_block` does not cover every block (`cookie`, `notification`, `webhook`, and others). For those, build the short workflow and call `preview_workflow`.
+
+### What you see and what the tools see
+
+A screenshot is the visible viewport, one JPEG, and it is dropped when it is large. `page_snapshot` skips elements with no size and skips Automa's own picker. It does not list inside shadow roots. If the snapshot is empty, the page is still loading: call it again. If you clicked and the page navigated, snapshot the new URL before choosing the next selector.
+
 ## End to end
 
 1. `list_blocks` and `get_block_schema` for `new-tab` and `get-text`.
@@ -335,8 +408,11 @@ The first run of a block that needs `downloads`, `clipboard`, or `notifications`
 
 ## Not in this change
 
-- Step history is not streamed while a run is still going. Poll `get_run_logs` after the run finishes.
 - Only the common editor dropdowns are listed as enums. An unknown option is a warning.
 - Blocks nested inside `blocks-group` or a block package are not validated field by field.
 - There is no remote or multi-user bridge. The token is a shared secret on `127.0.0.1`.
-- Selectors still have to be written by the agent. The on-page element picker is unchanged.
+- Step history is still written only when a run finishes. `page_snapshot` is how you inspect the page while you are building, not a live trace of a running workflow.
+- `page_snapshot` does not enter closed shadow roots or iframes other than the top frame. Use `evaluate_in_tab` or the `>>` combinator for open shadow DOM.
+- A screenshot is the visible area, not a full-page capture, and a very large image is omitted.
+- `preview_block` runs interaction blocks, `new-tab`, `reload-tab`, and website `javascript-code`. Other blocks go through `preview_workflow`.
+- The on-page element picker for a person using the editor is unchanged.

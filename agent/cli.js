@@ -7,6 +7,7 @@ const { writeSchemaFiles, buildSchema } = require('./schema');
 const { validateWorkflow, parseDrawflow } = require('./validate');
 const { createWorkflow } = require('./create-workflow');
 const { buildExamples } = require('./examples');
+const { judgeSelector } = require('./selectors');
 
 function print(value) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
@@ -26,6 +27,7 @@ function usage() {
   node agent/cli.js normalize <workflow.json> [--out <file>]
   node agent/cli.js create --spec <spec.json> [--out <file>]
   node agent/cli.js examples [--out <directory>]
+  node agent/cli.js selector <css-or-xpath>
   node agent/cli.js rpc <method> [--file <params.json>]
 
 validate exits 1 when the workflow has errors.
@@ -178,6 +180,16 @@ function commandExamples(argv) {
   }
 }
 
+function commandSelector(argv) {
+  const selector = argv.slice(1).join(' ').trim();
+  if (!selector) {
+    usage();
+    process.exitCode = 1;
+    return;
+  }
+  print(judgeSelector(selector));
+}
+
 async function commandRpc(argv) {
   const method = argv[1];
   if (!method) {
@@ -223,6 +235,7 @@ async function main() {
     normalize: () => commandNormalize(argv),
     create: () => commandCreate(argv),
     examples: () => commandExamples(argv),
+    selector: () => commandSelector(argv),
     rpc: () => commandRpc(argv),
   };
 

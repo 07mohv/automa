@@ -41,7 +41,7 @@ Automa Chrome Extension Builder (Automa CEB for short) allows you to generate a 
 
 ## AI agents
 
-An agent can build a workflow that runs, without the visual editor. Start at [AGENTS.md](./AGENTS.md) (the discover → build → validate → import → run → logs → fix loop, plus which blocks to use) or [llms.txt](./llms.txt). Validate with `pnpm agent:validate <file>`. Import and run go through MCP or `POST /automa/v1/rpc` on `127.0.0.1` after Settings → Agent bridge is enabled.
+An agent can build a workflow that runs, without the visual editor. Start at [AGENTS.md](./AGENTS.md) (the discover → build → validate → import → run → logs → fix loop, plus which blocks to use) or [llms.txt](./llms.txt). An agent that can drive a browser can snapshot the live page, test selectors, and preview a block before saving the workflow. Validate with `pnpm agent:validate <file>`. Import, run, and page inspection go through MCP or `POST /automa/v1/rpc` on `127.0.0.1` after Settings → Agent bridge is enabled.
 
 ```bash
 pnpm agent:schema     # refresh the JSON Schema and block catalog

@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill';
 import dbLogs from '@/db/logs';
 import { parseJSON } from '@/utils/helper';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
+import { runPageCommand } from './agentPage';
 import BackgroundWorkflowUtils from './BackgroundWorkflowUtils';
 
 const ALARM_NAME = 'agent-bridge';
@@ -355,8 +356,68 @@ async function stopWorkflow(params) {
   return { stopped: true, stateId };
 }
 
+async function deleteWorkflow(id) {
+  const stored = await browser.storage.local.get('workflows');
+  const wasArray = Array.isArray(stored.workflows);
+  const workflows = asWorkflowMap(stored.workflows);
+  if (!workflows[id]) return { deleted: false, workflowId: id };
+  delete workflows[id];
+  await browser.storage.local.set({
+    workflows: wasArray ? Object.values(workflows) : workflows,
+  });
+  return { deleted: true, workflowId: id };
+}
+
+async function previewWorkflow(params) {
+  if (!params.workflow || typeof params.workflow !== 'object') {
+    throw new Error('preview_workflow requires a workflow object.');
+  }
+  const timeoutMs = Math.min(
+    Math.max(Number(params.timeoutMs) || 20000, 1000),
+    50000
+  );
+  const saved = await saveWorkflow(
+    { ...params.workflow, id: undefined },
+    { overwrite: false }
+  );
+  try {
+    await runWorkflow({
+      workflowId: saved.workflowId,
+      variables: params.variables,
+      globalData: params.globalData,
+      checkParams: false,
+    });
+    const deadline = Date.now() + timeoutMs;
+    let running = await runningStates(saved.workflowId);
+    while (running.length && Date.now() < deadline) {
+      await delay(400);
+      running = await runningStates(saved.workflowId);
+    }
+    const logs = await getRunLogs({ workflowId: saved.workflowId, limit: 1 });
+    const kept = Boolean(params.keep) || running.length > 0;
+    return {
+      workflowId: saved.workflowId,
+      kept,
+      finished: running.length === 0,
+      logs: logs.logs,
+      running: logs.running,
+      message: running.length
+        ? 'The preview is still running, so the workflow was kept. Poll get_run_logs, or call stop_workflow to abandon it.'
+        : 'Preview finished and the temporary workflow was removed. Read logs[0].history. The message on a failed block says what to change. import_workflow the fixed version.',
+    };
+  } finally {
+    const stillRunning = await runningStates(saved.workflowId);
+    if (!params.keep && !stillRunning.length) {
+      await deleteWorkflow(saved.workflowId);
+    }
+  }
+}
+
 async function dispatchCommand(command) {
   const params = command.params || {};
+  if (command.method === 'preview_workflow') return previewWorkflow(params);
+  const pageResult = await runPageCommand(command.method, params);
+  if (pageResult !== undefined) return pageResult;
   const handlers = {
     ping: async () => ({
       ok: true,

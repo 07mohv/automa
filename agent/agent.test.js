@@ -357,6 +357,15 @@ test('handleTool returns block schemas and validation without the extension', as
     () => handleTool('get_block_schema', { blockId: 'not-a-block' }),
     /Unknown block/
   );
+
+  const judged = await handleTool('judge_selector', {
+    selector: 'input[name="custname"]',
+  });
+  assert.equal(judged.verdict, 'stable');
+  await assert.rejects(
+    () => handleTool('page_snapshot', { tabId: 1 }),
+    /Agent bridge is not running/
+  );
 });
 
 test('HTTP RPC lists blocks without an extension connection', async () => {
@@ -528,6 +537,10 @@ test('MCP stdio initialize and tools/list', async () => {
       'import_workflow',
       'run_workflow',
       'get_run_logs',
+      'page_snapshot',
+      'test_selector',
+      'judge_selector',
+      'preview_block',
     ].forEach((name) => assert.ok(names.includes(name), name));
 
     send({

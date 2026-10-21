@@ -62,7 +62,7 @@ async function onMessage(message, bridge) {
       capabilities: { tools: { listChanged: false } },
       serverInfo: { name: 'automa-agent', version: extensionVersion() },
       instructions:
-        'Read AGENTS.md first. Discover blocks, build a workflow, validate_workflow, and apply every error and warning fix before import. Warnings flag fixed delays, missing waits, fragile selectors, loops without a breakpoint, and missing retries. The same tools are HTTP POST http://127.0.0.1:<port>/automa/v1/rpc with header x-automa-token and body {"method","params"}. Reference variables with {{variables@name}} and the current loop item with {{loopData@loopId}}.',
+        'Read AGENTS.md first, including the computer-use section. On a real tab: open_tab, page_snapshot, test_selector, preview_block, then create_workflow. Apply every validate_workflow error and warning before import. judge_selector does not need the extension. The same tools are HTTP POST http://127.0.0.1:<port>/automa/v1/rpc with header x-automa-token and body {"method","params"}. Reference variables with {{variables@name}} and the current loop item with {{loopData@loopId}}.',
     });
     return;
   }
