@@ -1,0 +1,178 @@
+{
+  "extVersion": "1.30.00",
+  "name": "Loop numbers into a table",
+  "icon": "riGlobalLine",
+  "version": "1.30.00",
+  "table": [
+    {
+      "id": "value",
+      "name": "value",
+      "type": "string"
+    }
+  ],
+  "settings": {
+    "publicId": "",
+    "aipowerToken": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column"
+  },
+  "globalData": "{}",
+  "description": "Loop from 1 to 3 and append each number to the table column \"value\".",
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "label": "trigger",
+        "type": "BlockBasic",
+        "position": {
+          "x": 96,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "type": "manual",
+          "interval": 60,
+          "delay": 5,
+          "date": "",
+          "time": "00:00",
+          "url": "",
+          "shortcut": "",
+          "activeInInput": false,
+          "isUrlRegex": false,
+          "days": [],
+          "contextMenuName": "",
+          "contextTypes": [],
+          "parameters": [],
+          "preferParamsInTab": false,
+          "observeElement": {
+            "selector": "",
+            "baseSelector": "",
+            "matchPattern": "",
+            "targetOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            },
+            "baseElOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            }
+          }
+        }
+      },
+      {
+        "id": "loop",
+        "label": "loop-data",
+        "type": "BlockBasic",
+        "position": {
+          "x": 376,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "loopId": "count",
+          "maxLoop": 0,
+          "toNumber": 3,
+          "fromNumber": 1,
+          "startIndex": 0,
+          "loopData": "[]",
+          "description": "Count from 1 to 3",
+          "variableName": "",
+          "referenceKey": "",
+          "reverseLoop": false,
+          "elementSelector": "",
+          "waitForSelector": false,
+          "waitSelectorTimeout": 5000,
+          "resumeLastWorkflow": false,
+          "loopThrough": "numbers",
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "save",
+        "label": "insert-data",
+        "type": "BlockBasic",
+        "position": {
+          "x": 656,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Append the current number",
+          "dataList": [
+            {
+              "type": "table",
+              "name": "value",
+              "value": "{{loopData@count}}"
+            }
+          ]
+        }
+      },
+      {
+        "id": "next",
+        "label": "loop-breakpoint",
+        "type": "BlockLoopBreakpoint",
+        "position": {
+          "x": 936,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "loopId": "count",
+          "clearLoop": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "trigger",
+        "target": "loop",
+        "sourceHandle": "trigger-output-1",
+        "targetHandle": "loop-input-1",
+        "class": "source-trigger-output-1 target-loop-input-1"
+      },
+      {
+        "id": "edge-2",
+        "source": "loop",
+        "target": "save",
+        "sourceHandle": "loop-output-1",
+        "targetHandle": "save-input-1",
+        "class": "source-loop-output-1 target-save-input-1"
+      },
+      {
+        "id": "edge-3",
+        "source": "save",
+        "target": "next",
+        "sourceHandle": "save-output-1",
+        "targetHandle": "next-input-1",
+        "class": "source-save-output-1 target-next-input-1"
+      }
+    ],
+    "zoom": 1,
+    "x": 0,
+    "y": 0
+  }
+}

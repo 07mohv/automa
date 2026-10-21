@@ -1,0 +1,231 @@
+{
+  "extVersion": "1.30.00",
+  "name": "Scrape example.com paragraphs",
+  "icon": "riGlobalLine",
+  "version": "1.30.00",
+  "table": [
+    {
+      "id": "text",
+      "name": "text",
+      "type": "string"
+    }
+  ],
+  "settings": {
+    "publicId": "",
+    "aipowerToken": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column"
+  },
+  "globalData": "{}",
+  "description": "Open example.com and append each paragraph to the table column \"text\".",
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "label": "trigger",
+        "type": "BlockBasic",
+        "position": {
+          "x": 96,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "type": "manual",
+          "interval": 60,
+          "delay": 5,
+          "date": "",
+          "time": "00:00",
+          "url": "",
+          "shortcut": "",
+          "activeInInput": false,
+          "isUrlRegex": false,
+          "days": [],
+          "contextMenuName": "",
+          "contextTypes": [],
+          "parameters": [],
+          "preferParamsInTab": false,
+          "observeElement": {
+            "selector": "",
+            "baseSelector": "",
+            "matchPattern": "",
+            "targetOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            },
+            "baseElOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            }
+          }
+        }
+      },
+      {
+        "id": "open",
+        "label": "new-tab",
+        "type": "BlockBasic",
+        "position": {
+          "x": 376,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Open the page to scrape",
+          "url": "https://example.com",
+          "userAgent": "",
+          "active": true,
+          "tabZoom": 1,
+          "inGroup": false,
+          "waitTabLoaded": true,
+          "updatePrevTab": false,
+          "customUserAgent": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "loop",
+        "label": "loop-elements",
+        "type": "BlockBasic",
+        "position": {
+          "x": 656,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "loopId": "paragraphs",
+          "selector": "p",
+          "maxLoop": "0",
+          "description": "Visit each paragraph",
+          "reverseLoop": false,
+          "actionElSelector": "",
+          "findBy": "cssSelector",
+          "actionElMaxWaitTime": 5,
+          "actionPageMaxWaitTime": 10,
+          "loadMoreAction": "none",
+          "scrollToBottom": false,
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "read",
+        "label": "get-text",
+        "type": "BlockBasic",
+        "position": {
+          "x": 936,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Save the current paragraph",
+          "findBy": "cssSelector",
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "selector": "{{loopData@paragraphs}}",
+          "markEl": false,
+          "multiple": false,
+          "regex": "",
+          "prefixText": "",
+          "suffixText": "",
+          "regexExp": [],
+          "dataColumn": "text",
+          "saveData": true,
+          "includeTags": false,
+          "addExtraRow": false,
+          "assignVariable": false,
+          "useTextContent": false,
+          "variableName": "",
+          "extraRowValue": "",
+          "extraRowDataColumn": "",
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "next",
+        "label": "loop-breakpoint",
+        "type": "BlockLoopBreakpoint",
+        "position": {
+          "x": 1216,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "loopId": "paragraphs",
+          "clearLoop": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "trigger",
+        "target": "open",
+        "sourceHandle": "trigger-output-1",
+        "targetHandle": "open-input-1",
+        "class": "source-trigger-output-1 target-open-input-1"
+      },
+      {
+        "id": "edge-2",
+        "source": "open",
+        "target": "loop",
+        "sourceHandle": "open-output-1",
+        "targetHandle": "loop-input-1",
+        "class": "source-open-output-1 target-loop-input-1"
+      },
+      {
+        "id": "edge-3",
+        "source": "loop",
+        "target": "read",
+        "sourceHandle": "loop-output-1",
+        "targetHandle": "read-input-1",
+        "class": "source-loop-output-1 target-read-input-1"
+      },
+      {
+        "id": "edge-4",
+        "source": "read",
+        "target": "next",
+        "sourceHandle": "read-output-1",
+        "targetHandle": "next-input-1",
+        "class": "source-read-output-1 target-next-input-1"
+      }
+    ],
+    "zoom": 1,
+    "x": 0,
+    "y": 0
+  }
+}

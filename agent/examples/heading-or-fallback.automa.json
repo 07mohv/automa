@@ -1,0 +1,218 @@
+{
+  "extVersion": "1.30.00",
+  "name": "Read a heading or follow the fallback",
+  "icon": "riGlobalLine",
+  "version": "1.30.00",
+  "table": [],
+  "settings": {
+    "publicId": "",
+    "aipowerToken": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column"
+  },
+  "globalData": "{}",
+  "description": "Open example.com. When an h1 exists, store its text. Otherwise store an empty heading.",
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "label": "trigger",
+        "type": "BlockBasic",
+        "position": {
+          "x": 96,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "type": "manual",
+          "interval": 60,
+          "delay": 5,
+          "date": "",
+          "time": "00:00",
+          "url": "",
+          "shortcut": "",
+          "activeInInput": false,
+          "isUrlRegex": false,
+          "days": [],
+          "contextMenuName": "",
+          "contextTypes": [],
+          "parameters": [],
+          "preferParamsInTab": false,
+          "observeElement": {
+            "selector": "",
+            "baseSelector": "",
+            "matchPattern": "",
+            "targetOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            },
+            "baseElOptions": {
+              "subtree": false,
+              "childList": true,
+              "attributes": false,
+              "attributeFilter": [],
+              "characterData": false
+            }
+          }
+        }
+      },
+      {
+        "id": "open",
+        "label": "new-tab",
+        "type": "BlockBasic",
+        "position": {
+          "x": 376,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "url": "https://example.com",
+          "userAgent": "",
+          "active": true,
+          "tabZoom": 1,
+          "inGroup": false,
+          "waitTabLoaded": true,
+          "updatePrevTab": false,
+          "customUserAgent": false,
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "check",
+        "label": "element-exists",
+        "type": "BlockElementExists",
+        "position": {
+          "x": 656,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Does the page have a heading?",
+          "findBy": "cssSelector",
+          "selector": "h1",
+          "tryCount": 3,
+          "timeout": 1500,
+          "markEl": false,
+          "throwError": false
+        }
+      },
+      {
+        "id": "read",
+        "label": "get-text",
+        "type": "BlockBasic",
+        "position": {
+          "x": 936,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "",
+          "findBy": "cssSelector",
+          "waitForSelector": true,
+          "waitSelectorTimeout": 5000,
+          "selector": "h1",
+          "markEl": false,
+          "multiple": false,
+          "regex": "",
+          "prefixText": "",
+          "suffixText": "",
+          "regexExp": [],
+          "dataColumn": "",
+          "saveData": false,
+          "includeTags": false,
+          "addExtraRow": false,
+          "assignVariable": true,
+          "useTextContent": false,
+          "variableName": "heading",
+          "extraRowValue": "",
+          "extraRowDataColumn": "",
+          "onError": {
+            "enable": true,
+            "retry": true,
+            "retryTimes": 2,
+            "retryInterval": 1,
+            "toDo": "error"
+          }
+        }
+      },
+      {
+        "id": "missing",
+        "label": "insert-data",
+        "type": "BlockBasic",
+        "position": {
+          "x": 1216,
+          "y": 120
+        },
+        "data": {
+          "disableBlock": false,
+          "description": "Record that the heading is absent",
+          "dataList": [
+            {
+              "type": "variable",
+              "name": "heading",
+              "value": ""
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "trigger",
+        "target": "open",
+        "sourceHandle": "trigger-output-1",
+        "targetHandle": "open-input-1",
+        "class": "source-trigger-output-1 target-open-input-1"
+      },
+      {
+        "id": "edge-2",
+        "source": "open",
+        "target": "check",
+        "sourceHandle": "open-output-1",
+        "targetHandle": "check-input-1",
+        "class": "source-open-output-1 target-check-input-1"
+      },
+      {
+        "id": "edge-3",
+        "source": "check",
+        "target": "read",
+        "sourceHandle": "check-output-1",
+        "targetHandle": "read-input-1",
+        "class": "source-check-output-1 target-read-input-1"
+      },
+      {
+        "id": "edge-4",
+        "source": "check",
+        "target": "missing",
+        "sourceHandle": "check-output-2",
+        "targetHandle": "missing-input-1",
+        "class": "source-check-output-2 target-missing-input-1"
+      }
+    ],
+    "zoom": 1,
+    "x": 0,
+    "y": 0
+  }
+}

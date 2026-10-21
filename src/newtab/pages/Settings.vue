@@ -52,6 +52,7 @@ const menus = [
   { id: 'profile', path: '/profile', icon: 'riUser3Line' },
   { id: 'backup', path: '/backup', icon: 'riDatabase2Line' },
   { id: 'editor', path: '/editor', icon: 'riMindMap' },
+  { id: 'agent', path: '/agent', icon: 'riCodeSSlashLine' },
   { id: 'shortcuts', path: '/shortcuts', icon: 'riKeyboardLine' },
   { id: 'about', path: '/about', icon: 'riInformationLine' },
 ];

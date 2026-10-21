@@ -17,6 +17,7 @@ import SettingsAbout from './pages/settings/SettingsAbout.vue';
 import SettingsProfile from './pages/settings/SettingsProfile.vue';
 import SettingsShortcuts from './pages/settings/SettingsShortcuts.vue';
 import SettingsBackup from './pages/settings/SettingsBackup.vue';
+import SettingsAgent from './pages/settings/SettingsAgent.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
 
 const routes = [
@@ -106,6 +107,7 @@ const routes = [
       { path: '/about', component: SettingsAbout },
       { path: '/backup', component: SettingsBackup },
       { path: '/editor', component: SettingsEditor },
+      { path: '/agent', component: SettingsAgent },
       { path: '/shortcuts', component: SettingsShortcuts },
     ],
   },

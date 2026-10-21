@@ -28,6 +28,11 @@ export const useStore = defineStore('main', {
         saveWhenExecute: false,
         snapGrid: { 0: 15, 1: 15 },
       },
+      agentBridge: {
+        enabled: false,
+        port: 17321,
+        token: '',
+      },
     },
     integrations: {
       googleDrive: false,
